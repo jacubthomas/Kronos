@@ -1,9 +1,0 @@
-com/kronos/Student/StudentController.class
-com/kronos/KronosApplication.class
-com/kronos/Reddit/WordRepository.class
-com/kronos/Reddit/Word.class
-com/kronos/Student/Student.class
-com/kronos/Reddit/WordService.class
-com/kronos/Student/StudentRepository.class
-com/kronos/Student/StudentService.class
-com/kronos/Reddit/WordController.class

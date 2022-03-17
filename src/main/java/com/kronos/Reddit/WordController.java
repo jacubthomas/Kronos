@@ -1,8 +1,8 @@
 package com.kronos.Reddit;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,43 +27,79 @@ public class WordController {
     // retrieves all word objects from DB
     List<Word> words = wordService.getWord();
 
+    // expedites retrieval of word sequences
+    HashMap<String, HashMap<String, Double>> hm = new HashMap<>();
+
+    // move list to more efficient container
+    for (Word w : words) {
+      hm.put(w.getWord(), new HashMap<String, Double>());
+      hm.get(w.getWord()).put("Liberal", w.getL_score());
+      hm.get(w.getWord()).put("Republican", w.getR_score());
+    }
+
+    // return sums
     double Liberal = 0.0;
     double Republican = 0.0;
     double i = 0;
 
-    // tokenizes input quote
+    // tokenizes input quote & tallies words
     Scanner sc = new Scanner(quote);
-
-    // preprocesses and weights words in input quote
-    HashMap<String, Integer> hm = new HashMap<>();
+    ArrayList<String> tokenized_input = new ArrayList();
     while (sc.hasNext()) {
       i += 1;
-      String temp = sc.next().toLowerCase();
-
-      if (hm.containsKey(temp)) {
-        hm.put(temp, hm.get(temp) + 1);
-      } else {
-        hm.put(temp, 1);
-      }
+      String temp = normalizeString(sc.next());
+      tokenized_input.add(temp);
     }
 
-    // sums ( word * weight * party_bias)
-    for (Map.Entry<String, Integer> entry : hm.entrySet()) {
-      String key = entry.getKey();
-      int value = entry.getValue();
-      for (Word w : words) {
-        if (w.getWord().equals(key)) {
-          Liberal += w.getL_score() * value;
-          Republican += w.getR_score() * value;
+    // tries to form largest word sequence at each point in sentence and return
+    // larger sequences attain larger sums
+    int size = tokenized_input.size();
+    for (int j = 0; j < size; j++) {
+      String trie = "";
+      if (j + 2 < size) {
+        trie =
+            tokenized_input.get(j)
+                + " "
+                + tokenized_input.get(j + 1)
+                + " "
+                + tokenized_input.get(j + 2);
+        if (hm.get(trie) != null) {
+          Liberal += hm.get(trie).get("Liberal") * 5;
+          Republican += hm.get(trie).get("Republican") * 5;
+          j += 2;
+          System.out.println("3trie : " + trie);
+          continue;
         }
       }
+      if (j + 1 < size) {
+        trie = tokenized_input.get(j) + " " + tokenized_input.get(j + 1);
+        if (hm.get(trie) != null) {
+
+          Liberal += hm.get(trie).get("Liberal") * 2.5;
+          Republican += hm.get(trie).get("Republican") * 2.5;
+          j += 1;
+          System.out.println("2trie : " + trie);
+          continue;
+        }
+      }
+      trie = tokenized_input.get(j);
+      if (hm.get(trie) != null) {
+        Liberal += hm.get(trie).get("Liberal");
+        Republican += hm.get(trie).get("Republican");
+        System.out.println("1trie : " + trie);
+      }
     }
+
     sc.close();
     HashMap<String, Double> result = new HashMap<>();
     result.put("Liberal", Liberal);
     result.put("Republican", Republican);
     result.put("Word_Count", i);
-    // String json = "{ Liberal:" + Liberal + ", Republican : " + Republican + " };";
     return result;
+  }
+
+  public String normalizeString(String raw) {
+    String result = raw.replaceAll("\\p{Punct}|[^\\x00-\\x7F]", "");
+    return result.toLowerCase();
   }
 }
