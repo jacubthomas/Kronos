@@ -8,8 +8,9 @@ const SignIn = () => {
     const [quote, setQuote] = useState("");
 
     const handleChange = (e) => {
-      const value = e.target.value;
-      setQuote(value);
+      const regex = /[^a-z0-9\s]/igm;
+      let temp = e.target.value.replaceAll(regex, "");
+      setQuote(temp);
     };
 
     const submitStudent = (e) => {
