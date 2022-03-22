@@ -1,5 +1,5 @@
 # Checkout preview.png & preview.mov!
-Application uses Naive-Bayesian Learning to classify a phrase's political bias. In doing so, it combs using a trie-like approach for 1-word, 2 and 3-word phrases that are weighted and stored in DB. The initial weighting is learned using the 10000 reddit posts and is tested using current news articles.
+Application uses Naive-Bayesian Learning to classify a phrase's political bias. In doing so, it combs using a trie-like approach for 1-word, 2 and 3-word subphrases that are weighted and stored in DB. The initial weighting is learned using the 10000 reddit posts and is tested using current news articles.
 
 # Getting Started with Create React App
 
